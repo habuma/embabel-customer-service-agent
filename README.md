@@ -1,5 +1,7 @@
 # Embabel Customer Service Agent
 
+[![Java CI with Gradle](https://github.com/habuma/embabel-customer-service-agent/actions/workflows/gradle.yml/badge.svg)](https://github.com/habuma/embabel-customer-service-agent/actions/workflows/gradle.yml)
+
 The agent uses the Llama 3.2 model running on a local Ollama. Therefore, before running
 the agent, be sure to install Ollama and the Llama 3.2 model (if you've not done so already).
 
