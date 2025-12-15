@@ -13,8 +13,9 @@ application. For example, using the Gradle wrapper:
 ```
 
 Once the agent is running, it will expose an MCP server on port 8080. You can poke at this
-MCP server using the MCP inspector (SSE at http://localhost:8080/sse) or you can configure
-your favorite LLM/Agent UI to use the MCP server.
+MCP server using the [MCP inspector](https://modelcontextprotocol.io/docs/tools/inspector)
+(using the SSE protocol at http://localhost:8080/sse) or you can configure your favorite
+LLM/Agent UI to use the MCP server.
 
 To configure it in Claude Desktop, you'll need to run it through the MCP-Remote MCP server
 which proxies through a local MCP server (since Claude Desktop does not yet support remote
@@ -30,7 +31,7 @@ MCP). To do that, add the following configuration to your Claude Desktop configu
         "mcp-remote",
         "http://localhost:8080/sse"
       ]
-    } 
+    }
   }
 }
 ```

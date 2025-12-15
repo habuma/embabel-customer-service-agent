@@ -4,10 +4,24 @@ import com.embabel.agent.api.annotation.*;
 import com.embabel.agent.api.common.Ai;
 import com.example.customerserviceagent.domain.*;
 import com.example.customerserviceagent.order.OrderService;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+
+import java.util.Map;
 
 @Agent(name = "customerServiceAgent",
       description = "Addresses customer order issues")
 public class CustomerServiceAgent {
+
+  @Value("classpath:/promptTemplates/issueClassification.st")
+  private Resource issueClassificationPT;
+
+  @Value("classpath:/promptTemplates/determineResolutionPlan.st")
+  private Resource determineResolutionPlanPT;
+
+  @Value("classpath:/promptTemplates/finalResponse.st")
+  private Resource finalResponsePT;
 
   private final OrderService orderService;
 
@@ -17,13 +31,10 @@ public class CustomerServiceAgent {
 
   @Action(description = "Classifies the issue based on customer input")
   public IssueClassification classifyIssue(CustomerInput customerInput, Ai ai) {
-    var promptTemplate = """
-        Based on the customer's input, classify the issue as one of the following:
-        MISSING_ITEM, DAMAGED_ITEM, WRONG_ITEM, DELAYED, REFUND_REQUEST, or OTHER.
-        
-        Customer input: {input}
-        """;
-    var prompt = promptTemplate.replace("{input}", customerInput.text());
+    var prompt = PromptTemplate.builder().resource(issueClassificationPT)
+        .variables(Map.of("input", customerInput.text()))
+        .build()
+        .render();
 
     return ai.withDefaultLlm()
         .createObject(prompt, IssueClassification.class);
@@ -46,23 +57,14 @@ public class CustomerServiceAgent {
       OrderDetails orderDetails,
       Ai ai) {
 
-    var promptTemplate = """
-        Given the issue classification and order details, determine a resolution plan from
-        one of the following: REFUND, RESEND_ITEM, CONTACT_CUSTOMER
-        
-        Issue Classification: {issueType}
-        
-        Order Details:
-        - Shipment Status: {shipmentStatus}
-        - Refund Eligible: {refundEligible}
-        - Resend Eligible: {resendEligible}
-        """;
-
-    var prompt = promptTemplate
-        .replace("{issueType}", issueClassification.issueType().name())
-        .replace("{shipmentStatus", orderDetails.shipmentStatus())
-        .replace("{refundEligible}", Boolean.toString(orderDetails.refundEligible()))
-        .replace("{resendEligible}", Boolean.toString(orderDetails.resendElibible()));
+    var prompt = PromptTemplate.builder().resource(determineResolutionPlanPT)
+        .variables(Map.of(
+            "issueType", issueClassification.issueType().name(),
+            "shipmentStatus", orderDetails.shipmentStatus(),
+            "refundEligible", orderDetails.refundEligible(),
+            "resendEligible", orderDetails.resendElibible()))
+        .build()
+        .render();
 
     return ai.withDefaultLlm()
         .createObject(prompt, ResolutionPlan.class);
@@ -74,10 +76,8 @@ public class CustomerServiceAgent {
       System.err.println(" *** ISSUING REFUND FOR ORDER : " + orderDetails.orderId() + " ***");
       return new ResolutionConfirmation("REFUND-1234");
     } else if (resolutionPlan.resolutionType().equals(ResolutionType.RESEND_ITEM)) {
-      System.err.println(" *** ISSUING RESEND FOR ORDER : " + orderDetails.orderId() + " ***");
       return new ResolutionConfirmation("RESEND-1234");
     }
-    System.err.println(" *** CONTACT CUSTOMER FOR ORDER : " + orderDetails.orderId() + " ***");
     return new ResolutionConfirmation("CONTACT-1234");
   }
 
@@ -89,18 +89,18 @@ public class CustomerServiceAgent {
                                     ResolutionConfirmation resolutionConfirmation,
                                     Ai ai) {
 
-    var promptTemplate = """
-        Generate a final response to the customer including the resolution details.
-        
-        Order Id: {orderId}
-        Resolution: {resolutionType}
-        Confirmation ID: {resolutionConfirmationId}
-        """;
+    System.err.println(" *** RESOLUTION PLAN : " + resolutionPlan.resolutionType() + " ***");
+    System.err.println(" *** RESOLUTION CONF : " + resolutionConfirmation.id() + " ***");
 
-    var prompt = promptTemplate
-        .replace("{orderId}", Long.toString(orderDetails.orderId()))
-        .replace("{resolutionType}", resolutionPlan.resolutionType().name())
-        .replace("{resolutionConfirmationId}", resolutionConfirmation.id());
+    var prompt = PromptTemplate.builder().resource(finalResponsePT)
+        .variables(Map.of(
+            "orderId", orderDetails.orderId(),
+            "resolutionType", resolutionPlan.resolutionType().name(),
+            "resolutionConfirmationId", resolutionConfirmation.id()))
+        .build()
+        .render();
+
+    System.err.println(" *** PROMPT: " + prompt);
 
     return ai.withDefaultLlm()
         .createObject(prompt, FinalResponse.class);
