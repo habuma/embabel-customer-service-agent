@@ -73,7 +73,6 @@ public class CustomerServiceAgent {
   @Action(description = "Execute resolution")
   public ResolutionConfirmation executeResolution(OrderDetails orderDetails, ResolutionPlan resolutionPlan) {
     if (resolutionPlan.resolutionType().equals(ResolutionType.REFUND)) {
-      System.err.println(" *** ISSUING REFUND FOR ORDER : " + orderDetails.orderId() + " ***");
       return new ResolutionConfirmation("REFUND-1234");
     } else if (resolutionPlan.resolutionType().equals(ResolutionType.RESEND_ITEM)) {
       return new ResolutionConfirmation("RESEND-1234");
@@ -89,9 +88,6 @@ public class CustomerServiceAgent {
                                     ResolutionConfirmation resolutionConfirmation,
                                     Ai ai) {
 
-    System.err.println(" *** RESOLUTION PLAN : " + resolutionPlan.resolutionType() + " ***");
-    System.err.println(" *** RESOLUTION CONF : " + resolutionConfirmation.id() + " ***");
-
     var prompt = PromptTemplate.builder().resource(finalResponsePT)
         .variables(Map.of(
             "orderId", orderDetails.orderId(),
@@ -99,8 +95,6 @@ public class CustomerServiceAgent {
             "resolutionConfirmationId", resolutionConfirmation.id()))
         .build()
         .render();
-
-    System.err.println(" *** PROMPT: " + prompt);
 
     return ai.withDefaultLlm()
         .createObject(prompt, FinalResponse.class);
