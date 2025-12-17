@@ -2,8 +2,8 @@
 
 [![Java CI with Gradle](https://github.com/habuma/embabel-customer-service-agent/actions/workflows/gradle.yml/badge.svg)](https://github.com/habuma/embabel-customer-service-agent/actions/workflows/gradle.yml)
 
-The agent uses the Llama 3.2 model running on a local Ollama. Therefore, before running
-the agent, be sure to install Ollama and the Llama 3.2 model (if you've not done so already).
+The agent uses the GPT-OSS model running on a local Ollama. Therefore, before running
+the agent, be sure to install Ollama and the GPT-OSS model (if you've not done so already).
 
 This is an Embabel-based customer service agent. Run it as you would run any Spring Boot
 application. For example, using the Gradle wrapper:
