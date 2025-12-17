@@ -1,4 +1,4 @@
 package com.example.customerserviceagent.domain;
 
-public record FinalResponse(String finalResponseText) {
+public record FinalResponse(String resolutionSummary) {
 }

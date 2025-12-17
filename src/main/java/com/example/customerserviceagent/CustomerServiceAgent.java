@@ -82,7 +82,10 @@ public class CustomerServiceAgent {
 
   @Action(description = "Give final response")
   @AchievesGoal(description = "Issue is resolved",
-      export = @Export(name = "finalResponse", remote = true, startingInputTypes = CustomerInput.class))
+      export = @Export(
+          name = "inquiry",
+          remote = true,
+          startingInputTypes = CustomerInput.class))
   public FinalResponse resolveIssue(OrderDetails orderDetails,
                                     ResolutionPlan resolutionPlan,
                                     ResolutionConfirmation resolutionConfirmation,

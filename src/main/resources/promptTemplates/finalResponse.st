@@ -1,5 +1,10 @@
-Generate a final response to the customer including the resolution details.
+Generate a final response to the customer including a summary of the resolution details.
 
-Order Id: {orderId}
-Resolution: {resolutionType}
-Confirmation ID: {resolutionConfirmationId}
+The resolution details are as follows:
+- Order Id: {orderId}
+- Resolution: {resolutionType}
+- Confirmation ID: {resolutionConfirmationId}
+
+The summary should be in a friendly tone.
+
+Resolution summary:
