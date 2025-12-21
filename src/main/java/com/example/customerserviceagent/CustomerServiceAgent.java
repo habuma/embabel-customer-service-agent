@@ -83,9 +83,10 @@ public class CustomerServiceAgent {
                                     Ai ai) throws IOException {
 
     var prompt = finalResponsePT.getContentAsString(Charset.defaultCharset());
-    return ai.withDefaultLlm()
+    var responseText = ai.withDefaultLlm()
         .withPromptContributors(List.of(orderDetails, resolutionPlan, resolutionConfirmation))
-        .createObject(prompt, FinalResponse.class);
+        .generateText(prompt);
+    return new FinalResponse(responseText);
   }
 
 }
