@@ -4,11 +4,12 @@ import com.embabel.agent.api.annotation.*;
 import com.embabel.agent.api.common.Ai;
 import com.example.customerserviceagent.domain.*;
 import com.example.customerserviceagent.order.OrderService;
-import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 
-import java.util.Map;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
 
 @Agent(name = "customerServiceAgent",
       description = "Addresses customer order issues")
@@ -30,13 +31,10 @@ public class CustomerServiceAgent {
   }
 
   @Action(description = "Classifies the issue based on customer input")
-  public IssueClassification classifyIssue(CustomerInput customerInput, Ai ai) {
-    var prompt = PromptTemplate.builder().resource(issueClassificationPT)
-        .variables(Map.of("input", customerInput.text()))
-        .build()
-        .render();
-
+  public IssueClassification classifyIssue(CustomerInput customerInput, Ai ai) throws IOException {
+    var prompt = issueClassificationPT.getContentAsString(Charset.defaultCharset());
     return ai.withDefaultLlm()
+        .withPromptContributor(customerInput)
         .createObject(prompt, IssueClassification.class);
   }
 
@@ -55,18 +53,11 @@ public class CustomerServiceAgent {
   public ResolutionPlan determineResolutionPlan(
       IssueClassification issueClassification,
       OrderDetails orderDetails,
-      Ai ai) {
+      Ai ai) throws IOException{
 
-    var prompt = PromptTemplate.builder().resource(determineResolutionPlanPT)
-        .variables(Map.of(
-            "issueType", issueClassification.issueType().name(),
-            "shipmentStatus", orderDetails.shipmentStatus(),
-            "refundEligible", orderDetails.refundEligible(),
-            "resendEligible", orderDetails.resendElibible()))
-        .build()
-        .render();
-
+    var prompt = determineResolutionPlanPT.getContentAsString(Charset.defaultCharset());
     return ai.withDefaultLlm()
+        .withPromptContributors(List.of(issueClassification, orderDetails))
         .createObject(prompt, ResolutionPlan.class);
   }
 
@@ -89,17 +80,11 @@ public class CustomerServiceAgent {
   public FinalResponse resolveIssue(OrderDetails orderDetails,
                                     ResolutionPlan resolutionPlan,
                                     ResolutionConfirmation resolutionConfirmation,
-                                    Ai ai) {
+                                    Ai ai) throws IOException {
 
-    var prompt = PromptTemplate.builder().resource(finalResponsePT)
-        .variables(Map.of(
-            "orderId", orderDetails.orderId(),
-            "resolutionType", resolutionPlan.resolutionType().name(),
-            "resolutionConfirmationId", resolutionConfirmation.id()))
-        .build()
-        .render();
-
+    var prompt = finalResponsePT.getContentAsString(Charset.defaultCharset());
     return ai.withDefaultLlm()
+        .withPromptContributors(List.of(orderDetails, resolutionPlan, resolutionConfirmation))
         .createObject(prompt, FinalResponse.class);
   }
 
