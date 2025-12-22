@@ -3,21 +3,26 @@ package com.example.customerserviceagent.domain;
 import com.embabel.common.ai.prompt.PromptContributionLocation;
 import com.embabel.common.ai.prompt.PromptContributor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 
 public record OrderDetails(
-    Long orderId,
+    @Id
+    @Column()
+    Long id,
+    String orderNumber,
     String sku,
     String shipmentStatus,
     boolean refundEligible,
-    boolean resendElibible) implements PromptContributor {
+    boolean resendEligible) implements PromptContributor {
 
   @Override
   public @NotNull String contribution() {
-    return "Order ID: " + orderId +
+    return "Order Number: " + orderNumber +
          "\nSKU: " + sku +
          "\nShipment status: " + shipmentStatus +
          "\nRefund eligible: " + refundEligible +
-         "\nResend eligible: " + resendElibible;
+         "\nResend eligible: " + resendEligible;
   }
 
   @Override

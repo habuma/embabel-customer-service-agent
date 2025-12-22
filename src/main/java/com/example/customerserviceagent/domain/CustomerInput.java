@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public record CustomerInput(
     String text,
-    Long orderId) implements PromptContributor {
+    String orderNumber) implements PromptContributor {
 
   @Override
   public @NotNull String contribution() {

@@ -16,10 +16,6 @@ java {
 
 repositories {
     mavenCentral()
-//    maven {
-//        name = "embabel-release"
-//        url = uri("https://repo.embabel.com/artifactory/libs-release")
-//    }
 }
 
 ext {
@@ -30,6 +26,8 @@ dependencies {
     implementation("com.embabel.agent:embabel-agent-starter:$embabelVersion")
     implementation("com.embabel.agent:embabel-agent-starter-mcpserver:$embabelVersion")
     implementation "com.embabel.agent:embabel-agent-starter-ollama:$embabelVersion"
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    runtimeOnly 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

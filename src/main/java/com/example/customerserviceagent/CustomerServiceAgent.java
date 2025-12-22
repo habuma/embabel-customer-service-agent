@@ -1,7 +1,6 @@
 package com.example.customerserviceagent;
 
 import com.embabel.agent.api.annotation.*;
-import com.embabel.agent.api.common.Ai;
 import com.embabel.agent.api.common.OperationContext;
 import com.example.customerserviceagent.domain.*;
 import com.example.customerserviceagent.order.OrderService;
@@ -43,13 +42,13 @@ public class CustomerServiceAgent {
 
   @Action(description = "Gets the order details")
   public OrderDetails checkOrderStatus(CustomerInput customerInput) {
-    Long orderId = customerInput.orderId();
-    if (orderId == null) {
-      OrderIdInput orderIdInput = WaitFor.formSubmission("What is the order ID?", OrderIdInput.class);
-      orderId = orderIdInput.orderId();
+    String orderNumber = customerInput.orderNumber();
+    if (orderNumber == null) {
+      OrderNumberInput orderNumberInput = WaitFor.formSubmission("What is the order ID?", OrderNumberInput.class);
+      orderNumber = orderNumberInput.orderNumber();
     }
 
-    return orderService.getOrderDetails(orderId);
+    return orderService.getOrderDetails(orderNumber);
   }
 
   @Action(description = "Determine resolution plan")

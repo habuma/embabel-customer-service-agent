@@ -4,6 +4,6 @@ import com.example.customerserviceagent.domain.OrderDetails;
 
 public interface OrderService {
 
-  OrderDetails getOrderDetails(Long orderId);
+  OrderDetails getOrderDetails(String orderNumber);
 
 }

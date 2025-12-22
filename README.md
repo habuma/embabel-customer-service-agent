@@ -14,7 +14,7 @@ application. For example, using the Gradle wrapper:
 
 Once the agent is running, it will expose an MCP server on port 8080. You can poke at this
 MCP server using the [MCP inspector](https://modelcontextprotocol.io/docs/tools/inspector)
-(using the SSE protocol at http://localhost:8080/sse) or you can configure your favorite
+(using the Streamable HTTP protocol at http://localhost:8080/mcp) or you can configure your favorite
 LLM/Agent UI to use the MCP server.
 
 To configure it in Claude Desktop, you'll need to run it through the MCP-Remote MCP server
@@ -29,7 +29,7 @@ MCP). To do that, add the following configuration to your Claude Desktop configu
       "args": [
         "-y",
         "mcp-remote",
-        "http://localhost:8080/sse"
+        "http://localhost:8080/mcp"
       ]
     }
   }
@@ -41,6 +41,9 @@ Then start a chat via the UI. You can try things like:
 - My order arrived damaged. I want a refund.
 - I ordered a red sweater, but received a green sweater. Can you please help?
 - My order is a week late in arriving. Please help me.
+
+When asked for an order number, numbers "112233", "223344", and "334455" are the order numbers
+for three orders available in the database.
 
 Note that (for the most part) the resolution that the agent arrives at is usually pretty
 good. But, at this point I didn't spend much effort defining policies for the agent to
