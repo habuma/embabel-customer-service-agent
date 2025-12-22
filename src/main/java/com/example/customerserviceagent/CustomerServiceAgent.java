@@ -4,11 +4,8 @@ import com.embabel.agent.api.annotation.*;
 import com.embabel.agent.api.common.OperationContext;
 import com.example.customerserviceagent.domain.*;
 import com.example.customerserviceagent.order.OrderService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 
 @Agent(name = "customerServiceAgent",
@@ -16,14 +13,6 @@ import java.util.List;
 public class CustomerServiceAgent {
 
   private final CSConfig config;
-  @Value("classpath:/promptTemplates/issueClassification.st")
-  private Resource issueClassificationPT;
-
-  @Value("classpath:/promptTemplates/determineResolutionPlan.st")
-  private Resource determineResolutionPlanPT;
-
-  @Value("classpath:/promptTemplates/finalResponse.st")
-  private Resource finalResponsePT;
 
   private final OrderService orderService;
 
@@ -34,7 +23,10 @@ public class CustomerServiceAgent {
 
   @Action(description = "Classifies the issue based on customer input")
   public IssueClassification classifyIssue(CustomerInput customerInput, OperationContext context) throws IOException {
-    var prompt = issueClassificationPT.getContentAsString(Charset.defaultCharset());
+    var prompt = """
+        Based on the customer's input, classify the issue as one of the following:
+        MISSING_ITEM, DAMAGED_ITEM, WRONG_ITEM, DELAYED, REFUND_REQUEST, or OTHER.
+        """;
     return config.getCustomerService().promptRunner(context)
         .withPromptContributor(customerInput)
         .createObject(prompt, IssueClassification.class);
@@ -57,7 +49,10 @@ public class CustomerServiceAgent {
       OrderDetails orderDetails,
       OperationContext context) throws IOException{
 
-    var prompt = determineResolutionPlanPT.getContentAsString(Charset.defaultCharset());
+    var prompt = """
+        Given the issue classification and order details, determine a resolution plan from
+        one of the following: REFUND, RESEND_ITEM, CONTACT_CUSTOMER
+        """;
     return config.getCustomerService().promptRunner(context)
         .withPromptContributors(List.of(issueClassification, orderDetails))
         .createObject(prompt, ResolutionPlan.class);
@@ -84,7 +79,9 @@ public class CustomerServiceAgent {
                                     ResolutionConfirmation resolutionConfirmation,
                                     OperationContext context) throws IOException {
 
-    var prompt = finalResponsePT.getContentAsString(Charset.defaultCharset());
+    var prompt = """
+        Generate a final response to the customer including a summary of the resolution details.
+        """;
     var responseText = config.getCustomerService().promptRunner(context)
         .withPromptContributors(List.of(orderDetails, resolutionPlan, resolutionConfirmation))
         .generateText(prompt);
