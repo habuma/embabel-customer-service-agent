@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: customer-service-agent
+  ai:
+    mcp:
+      server:
+        protocol: streamable
+
+embabel:
+  models:
+    default-llm: gpt-oss:latest
+  customerservice:
+    customer-service:
+      persona:
+        name: Nick
+        persona: You are a dedicated and resourceful customer service agent.
+        voice: Friendly and concise
+        objective: Help the customer resolve any issues with their order.
+      llm:
+        model: gpt-oss:latest

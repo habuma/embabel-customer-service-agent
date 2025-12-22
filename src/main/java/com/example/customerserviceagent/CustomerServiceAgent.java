@@ -2,6 +2,7 @@ package com.example.customerserviceagent;
 
 import com.embabel.agent.api.annotation.*;
 import com.embabel.agent.api.common.Ai;
+import com.embabel.agent.api.common.OperationContext;
 import com.example.customerserviceagent.domain.*;
 import com.example.customerserviceagent.order.OrderService;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import java.util.List;
       description = "Addresses customer order issues")
 public class CustomerServiceAgent {
 
+  private final CSConfig config;
   @Value("classpath:/promptTemplates/issueClassification.st")
   private Resource issueClassificationPT;
 
@@ -26,14 +28,15 @@ public class CustomerServiceAgent {
 
   private final OrderService orderService;
 
-  public CustomerServiceAgent(OrderService orderService) {
+  public CustomerServiceAgent(OrderService orderService, CSConfig config) {
     this.orderService = orderService;
+    this.config = config;
   }
 
   @Action(description = "Classifies the issue based on customer input")
-  public IssueClassification classifyIssue(CustomerInput customerInput, Ai ai) throws IOException {
+  public IssueClassification classifyIssue(CustomerInput customerInput, OperationContext context) throws IOException {
     var prompt = issueClassificationPT.getContentAsString(Charset.defaultCharset());
-    return ai.withDefaultLlm()
+    return config.getCustomerService().promptRunner(context)
         .withPromptContributor(customerInput)
         .createObject(prompt, IssueClassification.class);
   }
@@ -53,10 +56,10 @@ public class CustomerServiceAgent {
   public ResolutionPlan determineResolutionPlan(
       IssueClassification issueClassification,
       OrderDetails orderDetails,
-      Ai ai) throws IOException{
+      OperationContext context) throws IOException{
 
     var prompt = determineResolutionPlanPT.getContentAsString(Charset.defaultCharset());
-    return ai.withDefaultLlm()
+    return config.getCustomerService().promptRunner(context)
         .withPromptContributors(List.of(issueClassification, orderDetails))
         .createObject(prompt, ResolutionPlan.class);
   }
@@ -80,10 +83,10 @@ public class CustomerServiceAgent {
   public FinalResponse resolveIssue(OrderDetails orderDetails,
                                     ResolutionPlan resolutionPlan,
                                     ResolutionConfirmation resolutionConfirmation,
-                                    Ai ai) throws IOException {
+                                    OperationContext context) throws IOException {
 
     var prompt = finalResponsePT.getContentAsString(Charset.defaultCharset());
-    var responseText = ai.withDefaultLlm()
+    var responseText = config.getCustomerService().promptRunner(context)
         .withPromptContributors(List.of(orderDetails, resolutionPlan, resolutionConfirmation))
         .generateText(prompt);
     return new FinalResponse(responseText);
