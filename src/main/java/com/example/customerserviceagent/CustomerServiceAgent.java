@@ -4,6 +4,8 @@ import com.embabel.agent.api.annotation.*;
 import com.embabel.agent.api.common.OperationContext;
 import com.example.customerserviceagent.domain.*;
 import com.example.customerserviceagent.order.OrderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.List;
 @Agent(name = "customerServiceAgent",
       description = "Addresses customer order issues")
 public class CustomerServiceAgent {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CustomerServiceAgent.class);
 
   private final CSConfig config;
 
@@ -23,6 +27,7 @@ public class CustomerServiceAgent {
 
   @Action(description = "Classifies the issue based on customer input")
   public IssueClassification classifyIssue(CustomerInput customerInput, OperationContext context) throws IOException {
+    LOGGER.info("Classifying customer input");
     var prompt = """
         Based on the customer's input, classify the issue as one of the following:
         MISSING_ITEM, DAMAGED_ITEM, WRONG_ITEM, DELAYED, REFUND_REQUEST, or OTHER.
@@ -34,6 +39,7 @@ public class CustomerServiceAgent {
 
   @Action(description = "Gets the order details")
   public OrderDetails checkOrderStatus(CustomerInput customerInput) {
+    LOGGER.info("Checking order details");
     String orderNumber = customerInput.orderNumber();
     if (orderNumber == null) {
       OrderNumberInput orderNumberInput = WaitFor.formSubmission("What is the order ID?", OrderNumberInput.class);
@@ -47,7 +53,8 @@ public class CustomerServiceAgent {
   public ResolutionPlan determineResolutionPlan(
       IssueClassification issueClassification,
       OrderDetails orderDetails,
-      OperationContext context) throws IOException{
+      OperationContext context) throws IOException {
+    LOGGER.info("Determining resolution plan");
 
     var prompt = """
         Given the issue classification and order details, determine a resolution plan from
@@ -60,6 +67,7 @@ public class CustomerServiceAgent {
 
   @Action(description = "Execute resolution")
   public ResolutionConfirmation executeResolution(OrderDetails orderDetails, ResolutionPlan resolutionPlan) {
+    LOGGER.info("Execute resolution");
     if (resolutionPlan.resolutionType().equals(ResolutionType.REFUND)) {
       return new ResolutionConfirmation("REFUND-1234");
     } else if (resolutionPlan.resolutionType().equals(ResolutionType.RESEND_ITEM)) {
@@ -78,6 +86,7 @@ public class CustomerServiceAgent {
                                     ResolutionPlan resolutionPlan,
                                     ResolutionConfirmation resolutionConfirmation,
                                     OperationContext context) throws IOException {
+    LOGGER.info("Resolving issue");
 
     var prompt = """
         Generate a final response to the customer including a summary of the resolution details.

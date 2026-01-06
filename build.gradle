@@ -16,10 +16,11 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url='https://repo.embabel.com/artifactory/libs-snapshot' }
 }
 
 ext {
-    embabelVersion = '0.3.0'
+    embabelVersion = '0.3.2-SNAPSHOT'
 }
 
 dependencies {

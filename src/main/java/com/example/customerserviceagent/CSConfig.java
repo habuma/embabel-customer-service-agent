@@ -1,6 +1,6 @@
 package com.example.customerserviceagent;
 
-import com.embabel.agent.prompt.persona.Actor;
+import com.embabel.agent.api.common.Actor;
 import com.embabel.agent.prompt.persona.Persona;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
